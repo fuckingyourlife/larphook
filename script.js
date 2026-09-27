@@ -62,6 +62,32 @@ function isUrl(value) {
     }
 }
 
+function isDirectImageUrl(value) {
+    if (!isUrl(value)) {
+        return false;
+    }
+
+    const parsed = new URL(value);
+    return /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(parsed.pathname + parsed.search);
+}
+
+function getImageUrl(input) {
+    const value = input.value.trim();
+    return value && isDirectImageUrl(value) ? value : "";
+}
+
+function getInvalidImageFields() {
+    return [
+        ["Webhook avatar", avatarUrl],
+        ["Author icon", authorIcon],
+        ["Thumbnail", thumbnailUrl],
+        ["Image", imageUrl],
+        ["Footer icon", footerIcon],
+    ]
+        .filter(([, input]) => input.value.trim() && !isDirectImageUrl(input.value.trim()))
+        .map(([label]) => label);
+}
+
 function hexToDecimal(hex) {
     return parseInt(hex.replace("#", ""), 16);
 }
@@ -115,24 +141,31 @@ function buildEmbed() {
     if (authorName.value.trim()) {
         embed.author = { name: authorName.value.trim() };
 
-        if (authorIcon.value.trim()) {
-            embed.author.icon_url = authorIcon.value.trim();
+        const authorIconValue = getImageUrl(authorIcon);
+
+        if (authorIconValue) {
+            embed.author.icon_url = authorIconValue;
         }
     }
 
-    if (thumbnailUrl.value.trim()) {
-        embed.thumbnail = { url: thumbnailUrl.value.trim() };
+    const thumbnailValue = getImageUrl(thumbnailUrl);
+    const imageValue = getImageUrl(imageUrl);
+
+    if (thumbnailValue) {
+        embed.thumbnail = { url: thumbnailValue };
     }
 
-    if (imageUrl.value.trim()) {
-        embed.image = { url: imageUrl.value.trim() };
+    if (imageValue) {
+        embed.image = { url: imageValue };
     }
 
     if (footerText.value.trim()) {
         embed.footer = { text: footerText.value.trim() };
 
-        if (footerIcon.value.trim()) {
-            embed.footer.icon_url = footerIcon.value.trim();
+        const footerIconValue = getImageUrl(footerIcon);
+
+        if (footerIconValue) {
+            embed.footer.icon_url = footerIconValue;
         }
     }
 
@@ -161,8 +194,10 @@ function buildPayload() {
         payload.username = username.value.trim();
     }
 
-    if (avatarUrl.value.trim()) {
-        payload.avatar_url = avatarUrl.value.trim();
+    const avatarValue = getImageUrl(avatarUrl);
+
+    if (avatarValue) {
+        payload.avatar_url = avatarValue;
     }
 
     if (embed) {
@@ -191,7 +226,7 @@ function updatePreview() {
     previewUsername.textContent = displayName;
     previewContent.textContent = payload.content || "Your message preview appears here.";
 
-    if (isUrl(avatar)) {
+    if (isDirectImageUrl(avatar)) {
         previewAvatar.innerHTML = `<img src="${escapeHtml(avatar)}" alt="">`;
     } else {
         previewAvatar.textContent = displayName.charAt(0).toUpperCase();
@@ -213,7 +248,7 @@ function updatePreview() {
         embedPreview.style.borderLeftColor = embedColor.value;
 
         if (embed.author?.name) {
-            previewAuthor.innerHTML = `${embed.author.icon_url && isUrl(embed.author.icon_url) ? `<img src="${escapeHtml(embed.author.icon_url)}" alt="">` : ""}<span>${escapeHtml(embed.author.name)}</span>`;
+            previewAuthor.innerHTML = `${embed.author.icon_url && isDirectImageUrl(embed.author.icon_url) ? `<img src="${escapeHtml(embed.author.icon_url)}" alt="">` : ""}<span>${escapeHtml(embed.author.name)}</span>`;
         }
 
         if (embed.title) {
@@ -225,7 +260,7 @@ function updatePreview() {
             previewDescription.textContent = embed.description;
         }
 
-        if (embed.thumbnail?.url && isUrl(embed.thumbnail.url)) {
+        if (embed.thumbnail?.url && isDirectImageUrl(embed.thumbnail.url)) {
             previewThumbnail.src = embed.thumbnail.url;
             embedPreview.classList.add("has-thumbnail");
         }
@@ -245,7 +280,7 @@ function updatePreview() {
         setImage(previewImage, embed.image?.url || "");
 
         if (embed.footer?.text) {
-            previewFooter.innerHTML = `${embed.footer.icon_url && isUrl(embed.footer.icon_url) ? `<img src="${escapeHtml(embed.footer.icon_url)}" alt="">` : ""}<span>${escapeHtml(embed.footer.text)}</span>`;
+            previewFooter.innerHTML = `${embed.footer.icon_url && isDirectImageUrl(embed.footer.icon_url) ? `<img src="${escapeHtml(embed.footer.icon_url)}" alt="">` : ""}<span>${escapeHtml(embed.footer.text)}</span>`;
         }
     }
 
@@ -312,6 +347,13 @@ form.addEventListener("submit", async (event) => {
 
     if (!payload.content && !payload.embeds?.length) {
         setStatus("Add message content or at least one embed detail.", "error");
+        return;
+    }
+
+    const invalidImageFields = getInvalidImageFields();
+
+    if (invalidImageFields.length) {
+        setStatus(`${invalidImageFields.join(", ")} must be a direct image URL ending in png, jpg, jpeg, gif, or webp.`, "error");
         return;
     }
 
