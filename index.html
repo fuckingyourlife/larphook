@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Larphook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <div class="badge"><i class="fa-solid fa-bolt"></i> Larpcord webhook sender</div>
+            <h1>Larphook</h1>
+            <p class="subtitle">A dark webhook composer for sending clean messages to your Larpcord channels.</p>
+            <p class="credit">made by @fallinginlove2012</p>
+        </section>
+
+        <section class="panel composer-panel">
+            <div class="panel-header">
+                <div>
+                    <span class="eyebrow">Composer</span>
+                    <h2>Webhook Builder</h2>
+                </div>
+                <div class="icon-pill"><i class="fa-solid fa-paper-plane"></i></div>
+            </div>
+
+            <form id="webhookForm" class="form">
+                <details open class="section-card">
+                    <summary><i class="fa-solid fa-link"></i> Webhook</summary>
+                    <label class="field">
+                        <span>Webhook URL</span>
+                        <input id="webhookUrl" type="url" placeholder="https://larpcord.net/api/v10/webhooks/..." autocomplete="off" required>
+                    </label>
+
+                    <div class="grid">
+                        <label class="field">
+                            <span>Username</span>
+                            <input id="username" type="text" placeholder="Larphook" maxlength="80">
+                        </label>
+
+                        <label class="field">
+                            <span>Avatar URL</span>
+                            <input id="avatarUrl" type="url" placeholder="https://example.com/avatar.png">
+                        </label>
+                    </div>
+                </details>
+
+                <details open class="section-card">
+                    <summary><i class="fa-solid fa-message"></i> Message</summary>
+                    <label class="field">
+                        <span>Content</span>
+                        <textarea id="content" rows="4" maxlength="2000" placeholder="Write the normal webhook message..."></textarea>
+                    </label>
+                </details>
+
+                <details open class="section-card">
+                    <summary><i class="fa-solid fa-layer-group"></i> Embed</summary>
+                    <div class="grid">
+                        <label class="field">
+                            <span>Embed Title</span>
+                            <input id="embedTitle" type="text" placeholder="Embed title" maxlength="256">
+                        </label>
+
+                        <label class="field">
+                            <span>Title URL</span>
+                            <input id="embedUrl" type="url" placeholder="https://example.com">
+                        </label>
+                    </div>
+
+                    <label class="field">
+                        <span>Description</span>
+                        <textarea id="embedDescription" rows="5" maxlength="4096" placeholder="Embed description..."></textarea>
+                    </label>
+
+                    <div class="grid three">
+                        <label class="field">
+                            <span>Color</span>
+                            <input id="embedColor" type="color" value="#1684ff">
+                        </label>
+
+                        <label class="field toggle-field">
+                            <span>Timestamp</span>
+                            <div class="toggle-row">
+                                <input id="embedTimestamp" type="checkbox">
+                                <label for="embedTimestamp">Use current time</label>
+                            </div>
+                        </label>
+
+                        <label class="field toggle-field">
+                            <span>Inline Fields</span>
+                            <div class="toggle-row">
+                                <input id="defaultInline" type="checkbox">
+                                <label for="defaultInline">New fields inline</label>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="grid">
+                        <label class="field">
+                            <span>Author Name</span>
+                            <input id="authorName" type="text" placeholder="Author" maxlength="256">
+                        </label>
+
+                        <label class="field">
+                            <span>Author Icon URL</span>
+                            <input id="authorIcon" type="url" placeholder="https://example.com/icon.png">
+                        </label>
+                    </div>
+
+                    <div class="grid">
+                        <label class="field">
+                            <span>Thumbnail URL</span>
+                            <input id="thumbnailUrl" type="url" placeholder="https://example.com/thumb.png">
+                        </label>
+
+                        <label class="field">
+                            <span>Image URL</span>
+                            <input id="imageUrl" type="url" placeholder="https://example.com/image.png">
+                        </label>
+                    </div>
+
+                    <div class="grid">
+                        <label class="field">
+                            <span>Footer Text</span>
+                            <input id="footerText" type="text" placeholder="Footer" maxlength="2048">
+                        </label>
+
+                        <label class="field">
+                            <span>Footer Icon URL</span>
+                            <input id="footerIcon" type="url" placeholder="https://example.com/footer.png">
+                        </label>
+                    </div>
+                </details>
+
+                <details open class="section-card">
+                    <summary><i class="fa-solid fa-list"></i> Embed Fields</summary>
+                    <div id="fieldsList" class="fields-list"></div>
+                    <button type="button" id="addFieldButton" class="secondary small-button">
+                        <i class="fa-solid fa-plus"></i>
+                        Add Field
+                    </button>
+                </details>
+
+                <div class="actions">
+                    <button type="submit" id="sendButton">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        Send Webhook
+                    </button>
+                    <button type="button" id="clearButton" class="secondary">
+                        <i class="fa-solid fa-eraser"></i>
+                        Clear
+                    </button>
+                </div>
+
+                <p id="status" class="status" role="status"></p>
+            </form>
+        </section>
+
+        <section class="panel preview-panel">
+            <div class="panel-header">
+                <div>
+                    <span class="eyebrow">Live Preview</span>
+                    <h2>Preview</h2>
+                </div>
+                <div class="icon-pill"><i class="fa-solid fa-eye"></i></div>
+            </div>
+
+            <article class="message-preview">
+                <div class="preview-avatar" id="previewAvatar">L</div>
+                <div class="preview-body">
+                    <div class="preview-user-row">
+                        <span id="previewUsername">Larphook</span>
+                        <span class="bot-tag">BOT</span>
+                        <span class="preview-time">Today</span>
+                    </div>
+                    <p id="previewContent" class="preview-content">Your message preview appears here.</p>
+                    <div id="embedPreview" class="embed-preview">
+                        <div class="embed-author" id="previewAuthor"></div>
+                        <a id="previewTitle" class="embed-title" href="#" target="_blank" rel="noreferrer"></a>
+                        <p id="previewDescription" class="embed-description"></p>
+                        <img id="previewThumbnail" class="embed-thumbnail" alt="">
+                        <div id="previewFields" class="embed-fields"></div>
+                        <img id="previewImage" class="embed-image" alt="">
+                        <div id="previewFooter" class="embed-footer"></div>
+                    </div>
+                </div>
+            </article>
+
+            <details class="payload-card">
+                <summary><i class="fa-solid fa-code"></i> JSON Payload</summary>
+                <pre id="payloadPreview">{}</pre>
+            </details>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
